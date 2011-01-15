@@ -1,1 +1,5 @@
 A super simple rest client.  It's convenient!  This is a rewrite of SimpleRestClient in Scala.
+
+To Compile:
+
+Simply symlink ivy.jar into the project folder and run ant.  Ivy will get scala and all the dependencies.

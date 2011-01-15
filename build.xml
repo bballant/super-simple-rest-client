@@ -1,0 +1,109 @@
+<project name="ssrestclient" default="run" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+  <property name="lib.dir" value="lib" />
+  <property name="build.dir" value="build" />
+  <property name="src.dir" value="src/main" />
+  <property name="java.src.dir" value="${src.dir}/java" />
+  <property name="scala.src.dir" value="${src.dir}/scala" />
+  <property name="test.src.dir" value="src/test/scala" />
+    
+  <!-- paths used for compilation and run  -->
+  <path id="lib.path.id">
+    <fileset dir="${lib.dir}" />
+  </path>
+
+  <path id="run.path.id">
+    <path refid="lib.path.id" />
+    <path location="${build.dir}" />
+  </path>
+
+  <!-- load scala -->
+  <target name="load-scala" depends="resolve">
+    <taskdef resource="scala/tools/ant/antlib.xml" classpathref="lib.path.id" />
+  </target>
+
+  <!-- load ivy tasks from local jar -->
+  <target name="load-ivy" >
+    <path id="ivy.lib.path" location="ivy.jar"/>
+    <taskdef resource="org/apache/ivy/ant/antlib.xml"
+              uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+  </target>    
+
+  <!-- use ivy.xml to resolve dependencies -->
+  <target name="resolve" depends="load-ivy" description="Retrieve dependencies with ivy">
+    <ivy:retrieve type="jar"/>
+  </target>
+
+  <!-- compile it -->
+  <target name="compile" depends="load-scala" 
+      description="resolve dependencies, compile and run the project">
+    <echo message="compiling..."/>
+    <mkdir dir="${build.dir}" />
+
+    <!--
+      don't have anything here yet
+    -
+    <copy todir="${build.dir}">
+      <fileset dir="${src.dir}/resources" />
+    </copy>
+    -->
+
+    <fsc srcdir="${src.dir}" destdir="${build.dir}" classpathref="lib.path.id" deprecation="true">
+      <include name="scala/**/*.scala" />
+      <include name="java/**/*.java" />
+    </fsc>
+
+    <javac debug="on" srcdir="${java.src.dir}" destdir="${build.dir}" classpathref="lib.path.id">
+      <compilerarg value="-Xlint:deprecation"/>
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile" description="Builds a complete service jar.">
+    <exec  executable="git" outputproperty="git-desc">
+        <arg value="describe"/>
+    </exec>
+    <delete>
+      <fileset dir="." includes="dist/{ant.project.name}-*.jar"/>
+    </delete>
+    <jar destfile="dist/{ant.project.name}-${git-desc}.jar" basedir="${classdir}"/>
+  </target>
+
+  <target name="compile-tests" depends="load-scala, clean">
+    <echo message="compiling tests..."/>
+    <mkdir dir="${build.dir}" />
+
+    <!--
+      don't have anything here yet
+    -
+    <copy todir="${build.dir}">
+      <fileset dir="${src.dir}/resources" />
+    </copy>
+    -->
+
+    <scalac srcdir="${src.dir}/.." destdir="${build.dir}" classpathref="lib.path.id" deprecation="true">
+      <include name="main/scala/**/*.scala" />
+      <include name="test/scala/**/*.scala" />
+      <include name="main/java/**/*.java" />
+    </scalac>
+
+    <javac debug="on" srcdir="${java.src.dir}" destdir="${build.dir}" classpathref="lib.path.id">
+      <compilerarg value="-Xlint:deprecation"/>
+    </javac>
+  </target>
+
+  <!-- run it -->
+  <target name="run" depends="compile-tests" description="run it">
+    <java classname="bb.simplerestclient.test.TestApp">
+      <classpath>
+        <path refid="lib.path.id" />
+        <path location="${build.dir}" />
+      </classpath>
+    </java>
+   </target> 
+
+  <!-- remove build dirs -->
+  <target name="clean" description="clean the project">
+    <delete dir="${build.dir}" />
+  </target>
+  
+</project>

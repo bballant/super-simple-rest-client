@@ -1,0 +1,21 @@
+<ivy-module version="2.0" xmlns:e="http://ant.apache.org/ivy/extra">
+  <info organisation="org.apache" module="ssrestclient"/>
+  <dependencies>
+
+    <!-- scala --> 
+    <dependency org="org.scala-lang"    name="scala-compiler"  rev="2.8.1" />
+
+    <!-- testing -->
+    <!--
+    <dependency org="org.testng" name="testng" rev="5.9" transitive="false">
+      <artifact name="testng" type="jar" ext="jar" e:classifier="jdk15" />
+    </dependency>
+    -->
+
+    <!-- misc -->
+    <!--
+    <dependency org="commons-logging" name="commons-logging"  rev="1.1.1"/>
+    -->
+
+  </dependencies>
+</ivy-module>
