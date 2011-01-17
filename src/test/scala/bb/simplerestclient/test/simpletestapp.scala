@@ -7,13 +7,22 @@ import bb.simplerestclient.RequestType
 object TestApp {
   import RequestType._
 
-  val basicTest = () => {
+  val testSimple = () => {
     assert(GET != POST)
     true
   }
 
-  val simpleGetTest = () => {
-    val r: HTTPResponse = Get("http://localhost:8666")
+  val testGet = () => {
+    val r: HTTPResponse = Get(url = "http://localhost:8666")
+    val response:String = r.getString
+    assert(response != null || response.length > 0)
+    true
+  }
+
+  val testGetWithParams = () => {
+    val r: HTTPResponse = Get(
+      url = "http://localhost:8666/account", 
+      params = Map("locale"->"en_gb", "a"->"1", "b"->"2", "c"->"c3"))
     val response:String = r.getString
     assert(response != null || response.length > 0)
     true
@@ -23,7 +32,11 @@ object TestApp {
     println("--- RUNNING SOME SUPER SIMPLE TESTS ---");
 
     // make a list of test functions
-    val allTheTests = List(basicTest, simpleGetTest)
+    val allTheTests = List(
+      testSimple, 
+      testGet,
+      testGetWithParams
+    )
 
     // set up a little incrementer
     var i = 0

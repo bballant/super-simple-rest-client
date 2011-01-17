@@ -31,6 +31,7 @@ import bb.simplerestclient.jv.DefaultConnectionProvider
 import bb.simplerestclient.jv.IConnectionProvider;
 import bb.simplerestclient.jv.HTTPResponse;
 import java.net.HttpURLConnection
+import java.net.URLEncoder
 
 object RequestType extends Enumeration {
   type RequestType = Value
@@ -40,30 +41,51 @@ object RequestType extends Enumeration {
 import RequestType._
 
 object Get {
-  def apply(url:String = ""): HTTPResponse = {
-    val req = new HTTPRequest(new DefaultConnectionProvider(), GET, url)
+  def apply(
+      connectionProvider: IConnectionProvider = new DefaultConnectionProvider(),
+      url: String = "", 
+      params: Map[String, String] = Map()
+    ): HTTPResponse = {
+
+    val req = new HTTPRequest(connectionProvider, GET, url, params)
     req.doRequest()
   }
 }
-   
+  
 class HTTPRequest(
-    val connectionProvider:IConnectionProvider, 
-    val requestType:RequestType, 
-    val url:String) {
+    val connectionProvider: IConnectionProvider, 
+    val requestType: RequestType, 
+    val url: String,
+    val params: Map[String, String]) {
 
-  private def connect(connection:HttpURLConnection):HTTPResponse = {
-    val response:HTTPResponse = new HTTPResponse(connection)
-    response.checkStatus()
-    response
-  }
-
-  def doRequest():HTTPResponse = {
-    val conn:HttpURLConnection = connectionProvider.getConnection(url)
+  def doRequest(): HTTPResponse = {
+    val rurl = if (requestType == GET) Util.mkUrl(url, params) else url
+    val conn: HttpURLConnection = connectionProvider.getConnection(rurl)
     conn.setDoInput(true)
     conn.setDoOutput(false)
     connect(conn)
   }
+
+  private def connect(connection: HttpURLConnection): HTTPResponse = {
+    val response: HTTPResponse = new HTTPResponse(connection)
+    response.checkStatus()
+    response
+  }
   
+}
+
+object Util {
+  def encode(value: String) = URLEncoder.encode(value, "UTF-8")
+
+  def paramString(params: Map[String, String]): String = {
+    params.map{kv => encode(kv._1) + 
+      "=" + encode(kv._2)}.mkString("&")     
+  }
+
+  def mkUrl(url: String, params: Map[String, String]): String = {
+    if (params.nonEmpty) url + "?" + paramString(params)
+    else url
+  }
 }
 
 //	public HTTPResponse get(String url, Map params, Map headers) throws IOException {
