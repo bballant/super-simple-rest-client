@@ -171,6 +171,10 @@ public class HTTPResponse {
 	}
     
 
+  public HttpURLConnection getConnection() {
+    return _connection;
+  }
+
     /**
      * Get error message out of connection
      * 

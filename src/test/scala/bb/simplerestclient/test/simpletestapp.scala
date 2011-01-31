@@ -1,11 +1,13 @@
 package bb.simplerestclient.test
 
-import bb.simplerestclient.jv.HTTPResponse
+import bb.simplerestclient.HttpResponse
 import bb.simplerestclient.Get
-import bb.simplerestclient.RequestType
+import bb.simplerestclient.RequestMethod
+
+import java.net.HttpURLConnection
 
 object TestApp {
-  import RequestType._
+  import RequestMethod._
 
   val testSimple = () => {
     assert(GET != POST)
@@ -13,16 +15,17 @@ object TestApp {
   }
 
   val testGet = () => {
-    val r: HTTPResponse = Get(url = "http://localhost:8666")
+    val r: HttpResponse = Get(url = "http://localhost:8666")
     val response:String = r.getString
     assert(response != null || response.length > 0)
     true
   }
 
   val testGetWithParams = () => {
-    val r: HTTPResponse = Get(
+    val r: HttpResponse = Get(
       url = "http://localhost:8666/account", 
       params = Map("locale"->"en_gb", "a"->"1", "b"->"2", "c"->"c3"))
+
     val response:String = r.getString
     assert(response != null || response.length > 0)
     true
