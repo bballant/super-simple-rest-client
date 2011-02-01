@@ -25,27 +25,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *******************************************************************************/
-package bb.simplerestclient.jv;
+package simplerestclient.jv;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 
 /**
- * A special kind of IOException that contains an HTTP Error Code
- * For a list of codes see HTTPResponse
+ * implement to provide an HttpURLConnection w/ some properties pre-set
+ * see BasicAuthenticationConnectionProvider for an example
+ * 
+ * This is passed into HttpRequest on creation to provide it w/ the connection
  * 
  * @author bballantine
  *
  */
-public class HTTPException extends IOException {
-	private static final long serialVersionUID = -4526324236776240815L;
-	private int _httpErrorCode;
-	
-	public HTTPException(int errorCode, String error) {
-		super(error);
-		_httpErrorCode = errorCode;
-	}
-	
-	public int getErrorCode() {
-		return _httpErrorCode;
-	}
+public interface IConnectionProvider {
+	public HttpURLConnection getConnection(String urlStr) throws IOException;
 }

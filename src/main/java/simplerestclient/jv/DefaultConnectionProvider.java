@@ -25,35 +25,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *******************************************************************************/
-package bb.simplerestclient.jv;
+package simplerestclient.jv;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-
+import java.net.URL;
 
 /**
- * A connection provider to use HTTP Basic Authentication
- * Create this and pass it into the HTTPRequest construction when creating it
- * 	to use basic authenticatioin:
+ * default connection provider used by HTTPRequest if none is provided
  * 
- * HettpRequest req = HTTPRequest(new BasicAuthenticationConnectionProvider("foo", "bar"));
- * 
- * @author bballantine
+ * @author Brian
  *
  */
-public class BasicAuthenticationConnectionProvider extends DefaultConnectionProvider {
-
-	String credentials;
-	
-	public BasicAuthenticationConnectionProvider(String username, String password) {
-		String rawCreds = username + ":" + password;
-		credentials = Base64.encodeBytes(rawCreds.getBytes());
-	}
+public class DefaultConnectionProvider implements IConnectionProvider {
 
 	public HttpURLConnection getConnection(String urlStr) throws IOException {
-		HttpURLConnection connection = super.getConnection(urlStr);
-		connection.setRequestProperty("Authorization", "Basic " + credentials);
-		return connection;
+		URL url = new URL(urlStr);
+		return (HttpURLConnection)url.openConnection();			
 	}
-
+	
+	
 }

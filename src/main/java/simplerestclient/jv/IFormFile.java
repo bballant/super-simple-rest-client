@@ -25,24 +25,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *******************************************************************************/
-package bb.simplerestclient.jv;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
+package simplerestclient.jv;
 
 /**
- * default connection provider used by HTTPRequest if none is provided
+ * interface to encapsulate a file to be POSTed to a restful web service
+ * use in conjunction with HttpRequest.postMultipart();
  * 
- * @author Brian
+ * 
+ * @author bballantine
  *
  */
-public class DefaultConnectionProvider implements IConnectionProvider {
-
-	public HttpURLConnection getConnection(String urlStr) throws IOException {
-		URL url = new URL(urlStr);
-		return (HttpURLConnection)url.openConnection();			
-	}
+public interface IFormFile {
 	
+	public String getFilename();
 	
+	public String getContentType();
+	
+	public byte[] getBytes();
 }

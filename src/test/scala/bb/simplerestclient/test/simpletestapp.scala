@@ -1,4 +1,4 @@
-package bb.simplerestclient.test
+package simplerestclient.test
 
 import bb.simplerestclient.HttpResponse
 import bb.simplerestclient.Get

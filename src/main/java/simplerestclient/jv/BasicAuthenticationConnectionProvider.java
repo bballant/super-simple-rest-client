@@ -25,21 +25,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *******************************************************************************/
-package bb.simplerestclient.jv;
+package simplerestclient.jv;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+
 
 /**
- * interface to encapsulate a file to be POSTed to a restful web service
- * use in conjunction with HttpRequest.postMultipart();
+ * A connection provider to use HTTP Basic Authentication
+ * Create this and pass it into the HTTPRequest construction when creating it
+ * 	to use basic authenticatioin:
  * 
+ * HettpRequest req = HTTPRequest(new BasicAuthenticationConnectionProvider("foo", "bar"));
  * 
  * @author bballantine
  *
  */
-public interface IFormFile {
+public class BasicAuthenticationConnectionProvider extends DefaultConnectionProvider {
+
+	String credentials;
 	
-	public String getFilename();
-	
-	public String getContentType();
-	
-	public byte[] getBytes();
+	public BasicAuthenticationConnectionProvider(String username, String password) {
+		String rawCreds = username + ":" + password;
+		credentials = Base64.encodeBytes(rawCreds.getBytes());
+	}
+
+	public HttpURLConnection getConnection(String urlStr) throws IOException {
+		HttpURLConnection connection = super.getConnection(urlStr);
+		connection.setRequestProperty("Authorization", "Basic " + credentials);
+		return connection;
+	}
+
 }

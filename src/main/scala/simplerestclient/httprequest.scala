@@ -25,7 +25,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *******************************************************************************/
-package bb.simplerestclient
+package simplerestclient
 
 import bb.simplerestclient.jv.DefaultConnectionProvider
 import bb.simplerestclient.jv.IConnectionProvider

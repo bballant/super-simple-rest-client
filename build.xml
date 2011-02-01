@@ -1,4 +1,4 @@
-<project name="ssrestclient" default="run" xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="simplerestclient" default="run" xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <property name="lib.dir" value="lib" />
   <property name="build.dir" value="build" />
@@ -63,9 +63,9 @@
         <arg value="describe"/>
     </exec>
     <delete>
-      <fileset dir="." includes="dist/{ant.project.name}-*.jar"/>
+      <fileset dir="." includes="dist/${ant.project.name}-*.jar"/>
     </delete>
-    <jar destfile="dist/{ant.project.name}-${git-desc}.jar" basedir="${classdir}"/>
+    <jar destfile="dist/${ant.project.name}-${git-desc}.jar" basedir="${build.dir}"/>
   </target>
 
   <target name="compile-tests" depends="load-scala, clean">
@@ -93,7 +93,7 @@
 
   <!-- run it -->
   <target name="run" depends="compile-tests" description="run it">
-    <java classname="bb.simplerestclient.test.TestApp">
+    <java classname="simplerestclient.test.TestApp">
       <classpath>
         <path refid="lib.path.id" />
         <path location="${build.dir}" />
