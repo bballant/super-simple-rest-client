@@ -27,9 +27,9 @@
  *******************************************************************************/
 package simplerestclient
 
-import bb.simplerestclient.jv.DefaultConnectionProvider
-import bb.simplerestclient.jv.IConnectionProvider
-import bb.simplerestclient.jv.HTTPResponse
+import simplerestclient.jv.DefaultConnectionProvider
+import simplerestclient.jv.IConnectionProvider
+import simplerestclient.jv.HTTPResponse
 import java.net.HttpURLConnection
 import java.net.URLEncoder
 import java.io.OutputStreamWriter

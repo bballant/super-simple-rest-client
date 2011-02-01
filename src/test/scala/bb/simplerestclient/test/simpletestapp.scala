@@ -1,8 +1,8 @@
 package simplerestclient.test
 
-import bb.simplerestclient.HttpResponse
-import bb.simplerestclient.Get
-import bb.simplerestclient.RequestMethod
+import simplerestclient.HttpResponse
+import simplerestclient.Get
+import simplerestclient.RequestMethod
 
 import java.net.HttpURLConnection
 
