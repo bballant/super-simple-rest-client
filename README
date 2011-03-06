@@ -3,3 +3,7 @@ A super simple rest client.  It's convenient!  This is a rewrite of SimpleRestCl
 To Compile:
 
 Simply symlink ivy.jar into the project folder and run ant.  Ivy will get scala and all the dependencies.
+
+To Use:
+
+See example code in simpletestapp.scala

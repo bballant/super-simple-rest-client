@@ -29,7 +29,7 @@ package simplerestclient
 
 import simplerestclient.jv.DefaultConnectionProvider
 import simplerestclient.jv.IConnectionProvider
-import simplerestclient.jv.HTTPResponse
+//import simplerestclient.jv.HTTPResponse
 import java.net.HttpURLConnection
 import java.net.URLEncoder
 import java.io.OutputStreamWriter
@@ -43,41 +43,44 @@ import RequestMethod._
 
 object Get {
   def apply(
-      connectionProvider: IConnectionProvider = new DefaultConnectionProvider(), 
       url: String = null,
       params: Map[String, String] = Map(),
       headers: Map[String, String] = Map(),
-      cookies: Map[String, String] = Map()): HttpResponse = {
+      cookies: Map[String, String] = Map(),
+      connectionProvider: IConnectionProvider = new DefaultConnectionProvider()
+    ): HttpResponse = {
 
     val req = new HttpRequest(
-      connectionProvider, GET, url, params, headers, cookies, false)
+      GET, url, params, headers, cookies, false, connectionProvider)
     req.doRequest()
   }
 }
   
 object Post {
   def apply(
-      connectionProvider: IConnectionProvider = new DefaultConnectionProvider(), 
       url: String = null,
       params: Map[String, String] = Map(),
       headers: Map[String, String] = Map(),
       cookies: Map[String, String] = Map(),
-      isMultipart:Boolean = false): HttpResponse = {
+      isMultipart:Boolean = false,
+      connectionProvider: IConnectionProvider = new DefaultConnectionProvider()
+    ): HttpResponse = {
 
     val req = new HttpRequest(
-      connectionProvider, POST, url, params, headers, cookies, isMultipart)
+      POST, url, params, headers, cookies, isMultipart, connectionProvider)
     req.doRequest()
   }
 }
 
 class HttpRequest(
-    val connectionProvider: IConnectionProvider = new DefaultConnectionProvider(), 
     val method: RequestMethod = GET, 
     val url: String = null,
     val params: Map[String, String] = Map(),
     val headers: Map[String, String] = Map(),
     val cookies: Map[String, String] = Map(),
-    val isMultipart: Boolean = false) {
+    val isMultipart: Boolean = false,
+    val connectionProvider: IConnectionProvider = new DefaultConnectionProvider()
+  ) {
 
   def doRequest(): HttpResponse = {
     val rurl = if (method == GET) Util.mkUrl(url, params) else url
@@ -92,23 +95,9 @@ class HttpRequest(
     } else {
       conn.setDoOutput(false)
     }
-    connect(conn)
-  }
-
-  private def connect(connection: HttpURLConnection): HttpResponse = {
-    val response: HttpResponse = new HttpResponse(connection)
-    response.checkStatus()
-    response
+    new HttpResponse(conn)
   }
   
-}
-
-// temporary hack, still moving HTTPResponse over
-class HttpResponse(connection: HttpURLConnection) extends HTTPResponse(connection) { 
-  /**
-  * readString is more intutitive as it has the side effect of draining the connection input stream
-  */
-  def readString() = getString()
 }
 
 object Util {
