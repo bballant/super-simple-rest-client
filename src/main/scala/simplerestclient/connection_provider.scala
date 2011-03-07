@@ -3,7 +3,7 @@
  *
  * Based on SimpleRestClient
  *
- * Copyright (c) 2011 Brian Ballantine 
+ * Copyright (c) 2008, 2009 Brian Ballantine and Bug Labs, Inc.
  * 
  * MIT License
  * 
@@ -27,44 +27,23 @@
  *******************************************************************************/
 package simplerestclient
 
-import java.io.{BufferedReader, InputStream, InputStreamReader}
-import java.lang.StringBuilder
-import java.net.HttpURLConnection
-
-object HttpResponse {
-  val DefaultErrorMessage = "There was a connection error.  " + 
-                            "The server responded with status code ";
+trait ConnectionProvider {
+  import java.net.{HttpURLConnection, URL}
+  def connection(url: String): HttpURLConnection =
+      new URL(url).openConnection().asInstanceOf[HttpURLConnection]
 }
 
-class HttpResponse(connection: HttpURLConnection) {
-  import scala.io.Source
-  import HttpResponse._
+class DefaultConnectionProvider extends ConnectionProvider
 
-  val responseCode: Int = connection.getResponseCode
+class BasicAuthenticationConnectionProvider(
+    username: String, password: String) extends ConnectionProvider {
+  import simplerestclient.jv.Base64
 
-  val body: String = {
-    try {
-      val is: InputStream = connection.getInputStream
-      Source.fromInputStream(is).mkString("")
-    } catch {
-      case e: Exception => errorString = e.getMessage
-      new String()
-    }
-  }
+  val credentials: String = Base64.encodeBytes((username+":"+password).getBytes)
 
-  private var errorString: String = _
-  def errorMessage: String = {
-    if (errorString == null && responseCode >= 400) {
-      val defaultMessage = DefaultErrorMessage + responseCode + "."
-      errorString =
-        try {
-          val is: InputStream = connection.getErrorStream 
-          if (is != null) Source.fromInputStream(is).mkString("")
-          else defaultMessage
-        } catch { 
-          case _ => defaultMessage 
-        }
-    }
-    errorString 
+  override def connection(url: String) = {
+    var connection = super.connection(url)
+    connection.setRequestProperty("Authorization", "Basic"+credentials)
+    connection
   }
 }

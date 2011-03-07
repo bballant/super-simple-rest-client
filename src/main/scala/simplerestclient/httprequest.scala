@@ -27,8 +27,8 @@
  *******************************************************************************/
 package simplerestclient
 
-import simplerestclient.jv.DefaultConnectionProvider
-import simplerestclient.jv.IConnectionProvider
+//import simplerestclient.jv.DefaultConnectionProvider
+//import simplerestclient.jv.IConnectionProvider
 //import simplerestclient.jv.HTTPResponse
 import java.net.HttpURLConnection
 import java.net.URLEncoder
@@ -47,12 +47,10 @@ object Get {
       params: Map[String, String] = Map(),
       headers: Map[String, String] = Map(),
       cookies: Map[String, String] = Map(),
-      connectionProvider: IConnectionProvider = new DefaultConnectionProvider()
+      connectionProvider: ConnectionProvider = new DefaultConnectionProvider()
     ): HttpResponse = {
 
-    val req = new HttpRequest(
-      GET, url, params, headers, cookies, false, connectionProvider)
-    req.doRequest()
+    SendHttpRequest(GET, url, params, headers, cookies, false, connectionProvider)
   }
 }
   
@@ -63,41 +61,58 @@ object Post {
       headers: Map[String, String] = Map(),
       cookies: Map[String, String] = Map(),
       isMultipart:Boolean = false,
-      connectionProvider: IConnectionProvider = new DefaultConnectionProvider()
+      connectionProvider: ConnectionProvider = new DefaultConnectionProvider()
+    ): HttpResponse = {
+
+    SendHttpRequest(POST, url, params, headers, cookies, isMultipart, connectionProvider)
+  }
+}
+
+object SendHttpRequest {
+  def apply(
+      method: RequestMethod = GET, 
+      url: String = null,
+      params: Map[String, String] = Map(),
+      headers: Map[String, String] = Map(),
+      cookies: Map[String, String] = Map(),
+      isMultipart:Boolean = false,
+      connectionProvider: ConnectionProvider = new DefaultConnectionProvider()
     ): HttpResponse = {
 
     val req = new HttpRequest(
-      POST, url, params, headers, cookies, isMultipart, connectionProvider)
+      method, url, params, headers, cookies, isMultipart, connectionProvider)
     req.doRequest()
   }
 }
 
 class HttpRequest(
-    val method: RequestMethod = GET, 
-    val url: String = null,
-    val params: Map[String, String] = Map(),
-    val headers: Map[String, String] = Map(),
-    val cookies: Map[String, String] = Map(),
-    val isMultipart: Boolean = false,
-    val connectionProvider: IConnectionProvider = new DefaultConnectionProvider()
+    method: RequestMethod = GET, 
+    url: String = null,
+    params: Map[String, String] = Map(),
+    headers: Map[String, String] = Map(),
+    cookies: Map[String, String] = Map(),
+    isMultipart: Boolean = false,
+    connectionProvider: ConnectionProvider = new DefaultConnectionProvider()
   ) {
 
   def doRequest(): HttpResponse = {
     val rurl = if (method == GET) Util.mkUrl(url, params) else url
-    val conn: HttpURLConnection = connectionProvider.getConnection(rurl)
+    val conn: HttpURLConnection = connectionProvider.connection(rurl)
     conn.setDoInput(true)
+    conn.setRequestMethod(method.toString)
     Util.setHeaders(conn, headers)
     Util.setCookies(conn, cookies)
     if (method == POST || method == PUT){  
       Util.setHeaders(conn, Map("Content-Type" -> "application/x-www-form-urlencoded"))
       conn.setDoOutput(true)
       Util.writeData(conn, Util.paramString(params)) 
+    } else if (method == HEAD) {
+      conn.setDoOutput(true)
     } else {
       conn.setDoOutput(false)
     }
     new HttpResponse(conn)
   }
-  
 }
 
 object Util {
