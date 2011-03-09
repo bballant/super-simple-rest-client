@@ -27,9 +27,6 @@
  *******************************************************************************/
 package simplerestclient
 
-//import simplerestclient.jv.DefaultConnectionProvider
-//import simplerestclient.jv.IConnectionProvider
-//import simplerestclient.jv.HTTPResponse
 import java.net.HttpURLConnection
 import java.net.URLEncoder
 import java.io.OutputStreamWriter
@@ -50,7 +47,7 @@ object Get {
       connectionProvider: ConnectionProvider = new DefaultConnectionProvider()
     ): HttpResponse = {
 
-    SendHttpRequest(GET, url, params, headers, cookies, false, connectionProvider)
+    SendHttpRequest(GET, url, params, headers, cookies, connectionProvider)
   }
 }
   
@@ -60,11 +57,13 @@ object Post {
       params: Map[String, String] = Map(),
       headers: Map[String, String] = Map(),
       cookies: Map[String, String] = Map(),
+      connectionProvider: ConnectionProvider = new DefaultConnectionProvider(),
       isMultipart:Boolean = false,
-      connectionProvider: ConnectionProvider = new DefaultConnectionProvider()
+      files: Map[String, FormFile] = Map()
     ): HttpResponse = {
 
-    SendHttpRequest(POST, url, params, headers, cookies, isMultipart, connectionProvider)
+    SendHttpRequest(
+      POST, url, params, headers, cookies, connectionProvider, isMultipart, files)
   }
 }
 
@@ -75,12 +74,13 @@ object SendHttpRequest {
       params: Map[String, String] = Map(),
       headers: Map[String, String] = Map(),
       cookies: Map[String, String] = Map(),
+      connectionProvider: ConnectionProvider = new DefaultConnectionProvider(),
       isMultipart:Boolean = false,
-      connectionProvider: ConnectionProvider = new DefaultConnectionProvider()
+      files: Map[String, FormFile] = Map()
     ): HttpResponse = {
 
     val req = new HttpRequest(
-      method, url, params, headers, cookies, isMultipart, connectionProvider)
+      method, url, params, headers, cookies, connectionProvider, isMultipart, files)
     req.doRequest()
   }
 }
@@ -91,8 +91,9 @@ class HttpRequest(
     params: Map[String, String] = Map(),
     headers: Map[String, String] = Map(),
     cookies: Map[String, String] = Map(),
-    isMultipart: Boolean = false,
-    connectionProvider: ConnectionProvider = new DefaultConnectionProvider()
+    connectionProvider: ConnectionProvider = new DefaultConnectionProvider(),
+    isMultipart:Boolean = false,
+    files: Map[String, FormFile] = Map()
   ) {
 
   def doRequest(): HttpResponse = {
@@ -103,9 +104,12 @@ class HttpRequest(
     Util.setHeaders(conn, headers)
     Util.setCookies(conn, cookies)
     if (method == POST || method == PUT){  
-      Util.setHeaders(conn, Map("Content-Type" -> "application/x-www-form-urlencoded"))
       conn.setDoOutput(true)
-      Util.writeData(conn, Util.paramString(params)) 
+      if (isMultipart) MultipartHelper.sendMultipart(conn, params, files) 
+      else {
+        Util.setHeaders(conn, Map("Content-Type" -> "application/x-www-form-urlencoded"))
+        Util.writeData(conn, Util.paramString(params)) 
+      }
     } else if (method == HEAD) {
       conn.setDoOutput(true)
     } else {
@@ -141,9 +145,9 @@ object Util {
   }
 
   def writeData(conn: HttpURLConnection, data: String) {
-    var osr:OutputStreamWriter = new OutputStreamWriter(conn.getOutputStream());
-    osr.write(data);
-    osr.flush();
-    osr.close();
+    var osr:OutputStreamWriter = new OutputStreamWriter(conn.getOutputStream)
+    osr.write(data)
+    osr.flush
+    osr.close
   }    
 }

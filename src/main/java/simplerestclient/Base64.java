@@ -145,7 +145,7 @@
  * @author rob@iharder.net
  * @version 2.3.7
  */
-package simplerestclient.jv;
+package simplerestclient;
 
 public class Base64
 {

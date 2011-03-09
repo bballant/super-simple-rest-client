@@ -37,7 +37,6 @@ class DefaultConnectionProvider extends ConnectionProvider
 
 class BasicAuthenticationConnectionProvider(
     username: String, password: String) extends ConnectionProvider {
-  import simplerestclient.jv.Base64
 
   val credentials: String = Base64.encodeBytes((username+":"+password).getBytes)
 

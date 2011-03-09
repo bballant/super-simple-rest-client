@@ -13,7 +13,7 @@ object TestApp {
   }
 
   val testGet = () => {
-    val r: HttpResponse = Get("http://www.github.com")
+    val r: HttpResponse = Get("http://www.google.com")
     val response:String = r.body
     assert(response != null || response.length > 0)
     true
@@ -21,7 +21,7 @@ object TestApp {
 
   val testGetWithParams = () => {
     val r: HttpResponse = Get(
-      "http://www.github.com", 
+      "http://www.google.com", 
       Map("locale"->"en_gb", "a"->"1", "b"->"2", "c"->"c3"))
 
     val response:String = r.body
@@ -58,6 +58,21 @@ object TestApp {
     // yahoo lets me post from a non-browser client, others do not
     val r: HttpResponse = 
       Post("http://search.yahoo.com/search", Map("q" -> "foobar"))
+    val responseCode: Int = r.responseCode
+    assert(responseCode == 200)
+    true
+  }
+
+  // TODO: Not a good test, need to test uploading a file
+  val testPostMultipart = () => {
+    // yahoo lets me post from a non-browser client, others do not
+    val r: HttpResponse = 
+      Post(
+        "http://search.yahoo.com/search", 
+        Map("q" -> "foobar"),
+        isMultipart = true, 
+        files = Map("file1" -> new FormFile("foobar", "text/html", Array()))
+      )
     val responseCode: Int = r.responseCode
     assert(responseCode == 200)
     true
@@ -105,6 +120,7 @@ object TestApp {
       test404,
       testBasicAuth,
       testPost,
+      testPostMultipart,
       testPut,
       testHead,
       testDelete
