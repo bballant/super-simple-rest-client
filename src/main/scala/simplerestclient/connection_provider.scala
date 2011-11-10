@@ -42,7 +42,7 @@ class BasicAuthenticationConnectionProvider(
 
   override def connection(url: String) = {
     var connection = super.connection(url)
-    connection.setRequestProperty("Authorization", "Basic"+credentials)
+    connection.setRequestProperty("Authorization", "Basic "+credentials)
     connection
   }
 }
